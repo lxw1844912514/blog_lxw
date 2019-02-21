@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreBlogPost;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+class PostsController extends Controller
+{
+    //展示表单
+    public function create()
+    {
+        Log::info('show posts create form');
+        Log::emergency('emergency log');
+        Log::alert('alert log');
+        Log::stack(['single','slack'])->info('something happened!');
+
+        return view('posts.create');
+    }
+    
+    //存储  验证
+    public function store(StoreBlogPost $request)
+    {
+
+       /* $validateDate=$request->validate([
+           'title'       =>'bail|required|unique:posts|max:255',
+            'body'       =>'required',
+            'author.desc'=>'required',
+            'author.name'=>'required'
+        ]);*/
+
+        // 验证通过，存储到数据库...
+
+    }    
+}

@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\User;
+use Illuminate\Http\Request;
+
+class ShowProfile extends Controller
+{
+    //
+    public function __invoke($id)
+    {
+        return view('user.profile',['user'=>User::findOrFail($id)]);
+    }
+}

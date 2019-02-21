@@ -1,0 +1,153 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
+
+class PostController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     ** @method get
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        //
+        $path = $request->path();
+        dd($path);
+
+//        return 'this is index function';
+
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @method get
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+        return 'this is create function';
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @method post
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+        return '<form method="post" action="/store">'.csrf_field().'<botton type="submit">提交</botton></form>';
+    }
+
+    /**
+     * Display the specified resource.
+     * @method get
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request)
+    {
+        //return 'this is show function';
+        $path = $request->path();
+        if ($request->is('posts/*')){
+//           var_dump('is_posts');
+//           dd($path);
+        }
+//        dd($path);
+        $url=$request->url();
+//        dd($url);
+        $fullUrl=$request->fullUrl();
+//        dd($fullUrl);
+        $method=$request->method();
+        if ($request->isMethod('post')){
+//            dd($method);
+        }
+//        dd($method);
+
+        $input=$request->all();
+       # dd($input);
+        $name=$request->input('name','lxw');
+//        dd($name);
+        $nameOne=$request->input('product.0.name');
+//        dd($nameOne);
+        $nameAll=$request->input('product.*.name');
+//        dd($nameAll);
+//        $age=$request->query('age');
+//        $age=$request->query('sex','men');
+          $age=$request->query();
+          #dd($age);
+       /* if ($bool=$request->has('name')){
+            dd($bool.'have');
+        }else{
+            dd($bool.'not');
+          }*/
+        if ($request->filled('name')){
+            echo  'true';
+        }else{
+            echo 'false';
+        }
+        $request->flash();
+        /*$request->flashOnly('age');
+        $name=$request->old('age');
+        dd($name);*/
+//        $value=$request->cookie('name');
+        /*$value=Cookie::get('name');
+        dd($value);*/
+        $file=$request->file('photo');
+//        $file=$request->photo;
+        if ($request->hasFile('photo')){
+            echo 'have photo';
+        }
+        dd($file);
+        if ($request->file('photo')->isValid()){
+            echo '错误';
+        }
+
+
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @method get
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+        return 'this is edit function';
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @method put/patch
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+        return '<form method="put" action="/update">'.csrf_field().'<botton type="submit">提交</botton></form>';
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @method delete
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+        # return 'this is destroy function';
+        return '<form method="delete" action="/destroy">'.csrf_field().'<botton type="submit">提交</botton></form>';
+    }
+}

@@ -1,0 +1,220 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+
+Route::get('/', function () {
+    return view('welcome',['website'=>'<strong>Laravel</strong>']);
+});
+Route::get('/blog', function () {
+    return view('blog',['website'=>'Laravel-Blog']);
+});
+
+Route::get('/arr',function (){
+    return ['hello ','world'];
+});
+
+Route::get('/cookie/response',function (){
+//   return response('hello world ',200)->header('Content-Type','text/plain');
+
+    /*return response('content')
+        ->header('Content-Type','text/plain')
+        ->header('X-Header-One','Header-value1')
+        ->header('X-Header-Two','Header-value2');*/
+    return response(date('Y-m-d H:i:s',time()))
+        ->header('content-type','text-plain')
+        ->cookie('cookie-key','cookie-message',30);
+});
+
+Route::get('/cookie/response2',function (){
+//    Cookie::queue(Cookie::make('site','Laravel学院',1));
+    Cookie::queue('site','Laravel学院',1);
+    Cookie::queue('author','学院军',1);
+    return response('hello laravel',200)->header('Content-Type','text/plain');
+});
+#重定向到命名路由
+Route::get('redirect',function (){
+//    return redirect('/cookie/response2');
+    return redirect()->route('login',['id'=>123]);
+});
+
+Route::get('/login/{id}',['as'=>'login',function ($id){
+    return response('欢迎admin登陆'.$id);
+}]);
+
+#重定向到控制器动作
+Route::get('showProfile/{id}','ShowProfile');
+
+#重定向到控制器动作
+Route::resource('home','HomeController');
+
+Route::get('homeResponse',function (){
+    return redirect()->action('HomeController@index',['id'=>111]);
+});
+
+#带一次性session数据到重定向
+Route::get('session',function (){
+   return redirect('var')->with('status','success del!');
+});
+
+Route::get('var','UserController@detail');
+
+Route::get('away',function (){
+   return redirect()->away('http://welltrend.com.cn');
+});
+
+Route::post('user/session', function () {
+    return redirect('var')->with('status', 'Profile updated!');
+});
+#提交表单
+Route::post('user/profile',function (){
+    return back()->withinput();
+});
+
+
+Route::get('view/response',function (){
+   return view('welcome',['website'=>'Lxw']);
+});
+
+Route::get('encode',function (){
+    /*return response()
+        ->json(['name'=>'lxw', 'status'=>1,])
+        ->withCallback($request->input('callback'));*/
+    return response()
+        ->jsonp($request->input('callback'), ['name' => 'Abigail', 'state' => 'CA']);
+});
+
+#下载
+Route::get('download',function (){
+//   return response()->download(storage_path('app/photo/图1.jpg'),'www.jpg');
+    /*return response()->download(storage_path('app/photo/test.jpg'))
+         ->deleteFileAfterSend(true);*/
+    return response()->file(storage_path('app/photo/1.jpeg'));
+});
+
+#响应宏
+Route::get('upper/response',function (){
+   return response()->upper('laravel');
+});
+
+
+#中间件
+/*Route::get('/', function () {
+    return view('welcome',['website'=>'Laravel-MiddleWare']);
+})->middleware('token');
+
+Route::get('/terminate',function (){
+    return 'hello<br>';
+})->middleware('token');*/
+#中间件组
+/*Route::group(['middleware'=>['web']],function (){
+    Route::get('/', function () {
+        return view('welcome',['website'=>'Laravel']);
+    });
+
+        Route::view('/view','welcome',['website'=>'Laravel学院']);
+
+});*/
+
+
+
+
+Route::view('view','welcome',['website'=>'Laravel 学院']);
+Route::view('welcome', 'welcome', ['website' => 'Laravel学院君']);
+
+Route::get('hello',function (){
+    return 'this is a route';
+});
+
+
+Route::get('form',function (){
+    return '<form method="post" action="/foo">'.csrf_field().'<botton type="submit">提交</botton></form>';
+});
+
+
+
+Route::get('user/{id}', function ($id) {
+    return 'User ' . $id;
+});
+Route::get('user/{name?}', function ($name = 'John') {
+    return $name;
+});
+
+
+//Route::get('profile/{id}','UserController@show');
+Route::get('userOne/{id}', 'UserController@show');
+Route::get('userDetail/{name}', 'UserController@detail');
+Route::get('userShow/{id}','ShowProfile'); #省略@后的方法，调用默认的 __invoke,
+
+
+/*Route::resource('posts', 'PostController',['only'=>['show','index']]);  #resource 一个路由
+
+Route::resources([                           #resources 数组形式的路由
+    'posts'=>'PostController',
+]);*/
+
+#api 资源路由
+Route::apiResource('post','PostController');
+
+#cookie
+Route::get('cookie/add',function (){
+    $minutes=24*60;
+    #return response('欢迎来到我的博客')->cookie('name','laravel学院君',$minutes);
+    $cookie=cookie('name','laravel的博客',$minutes);
+    return response('欢迎来到我的blog')->cookie($cookie);
+});
+Route::get('cookie/get',function (\Illuminate\Http\Request $request){
+    $cookie=$request->cookie('name');
+    dd($cookie);
+});
+
+#视图
+Route::get('blade/blog',function (){
+   return view('child',$array=['name'=>'lxw','age'=>12,'records'=>25,'i'=>2]);
+})->name('blog.show');
+Route::get('greet',function (){
+   return view('home.greeting',['name'=>'青春阳光']);
+});
+
+Route::get('getUrl','HomeController@getUrl');
+Route::get('getSession','HomeController@session_print');
+Route::get('getSessionKey',function (){
+    $value=session('blog');
+     dd($value);
+     session(['key'=>'value1234']);
+});
+Route::get('getAllSession','HomeController@getAllSession');
+
+#博客
+Route::get('/posts/create','PostsController@create');
+Route::post('posts','PostsController@store');
+
+Route::get('userFind','UserController@userFind');
+Route::get('list','UserController@getUsers');
+Route::get('oneLine','UserController@Oneline');
+Route::get('maxCount','UserController@maxCount');
+Route::get('existsFun','UserController@existsFun');
+Route::get('whereFun','UserController@whereFun');
+Route::get('addUser','UserController@addUser');
+Route::get('pageList','UserController@pageList');
+Route::get('userList',function (){
+    return App\User::paginate();
+});
+
+//路由分组
+Route::get(['prefix'=>'posts'],function (){
+    Route::get('/','postsController@index');
+    Route::get('/{id}','postsController@create');
+    Route::get('/create','postsController@index');
+});
+
+

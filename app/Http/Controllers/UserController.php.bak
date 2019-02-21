@@ -1,0 +1,153 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+
+class UserController extends Controller
+{
+    protected static $name;
+	
+
+    public function __construct()
+    {
+//        $this->middleware('token');                #对控制器中所有方法生效
+//        $this->middleware('token')->only('show');  #仅对show方法使用token中间件
+//        $this->middleware('token')->only(['show','only']);  #仅对show方法使用token中间件
+//        $this->middleware('token')->except('show');  #// 对该方法以外的方法生效
+
+        // http://blog.com/userOne/1?id=1（数字） 正常访问
+       /* $this->middleware(function ($request,$next){
+                if (!is_numeric($request->input('id'))){
+                    throw new NotFoundHttpException();
+                }
+            return $next($request);
+        });*/
+    }
+    //
+    public function show($id)
+    {
+        return view('user.profile', ['user' => User::findOrFail($id)]);
+    }
+
+    public function detail($name)
+    {
+        return view('user.profile', ['user' => $name]);
+    }
+
+    public function userFind()
+    {
+//        $user=DB::select('select * from users WHERE id=?',[1]);
+//        $user=DB::insert('insert into users (name,email,password) VALUE  (?,?,?)',['lxw2','lxw8@welltrenc.com.cm','123']);
+
+        DB::transaction(function (){
+            DB::table('users')->update(['password'=>123456]);
+            DB::table('postsbak')->delete('1');
+        });
+        return view('user.profile',['person'=>'2']);
+    }
+
+    public function getUsers()
+    {
+        #获取所有行
+        $list=DB::table('users')->get();
+        return view('user.profile',['list'=>$list]);
+    }
+
+    public function oneLine()
+    {
+//        $user=DB::table('users')->where('name','lxw')->first();
+        $user=DB::table('users')->where('name','lxw')->value('email');
+        dd($user);
+
+        /*$user=DB::table('users')->pluck('name','id');
+        foreach ($user as $a=>$name){
+            echo $a.'--'.$name.'<br>';
+        }*/
+
+
+    }
+
+    public function maxCount()
+    {
+        $user=DB::table('users')->count();
+        $id=DB::table('users')->min('id');
+        $avg=DB::table('users')->where('password','123456')->avg('id');
+        dd($avg);
+        dd($id);
+            dd($user);
+
+    }
+
+    public function existsFun()
+    {
+        /*$exist= DB::table('users')->where('name','lxw')->exists();
+        $exist= DB::table('users')->where('name','lxw')->doesntExist();
+        dd($exist);*/
+
+//        $users=DB::table('users')->select('name','email')->get();
+//        $users=DB::table('users')->distinct()->get();
+      /*  $query=DB::table('users')->select('name','email as user_email');
+        $users=$query->addSelect('email')->get();*/
+      $users=DB::table('users')
+          ->select(DB::raw('email ,count(*) as user_count '))
+      ->where('name','lxw')
+      ->groupBy('email')
+      ->get();
+//        dd($users);
+        echo '<pre>';
+        print_r($users);
+        echo '</pre>';
+    }
+
+    public function whereFun()
+    {
+//        $user=DB::table('users')->where('name','like','lxw%')->get();
+//        $user=DB::table('users')->whereIn('id',[1,3])->get();
+//        $user=DB::table('users')->whereNull('created_at')->get();
+        /*$user=DB::table('users')
+            ->whereYear('created_at','2018')
+            ->whereMonth('created_at','06')
+            ->whereDay('created_at','14')
+            ->whereDate('created_at','2018-06-14')
+            ->whereTime('created_at','>','02:12:13')
+            ->get();*/
+
+        $user=DB::table('users')->skip(1)->take(3)->get();
+
+        echo '<pre>';
+        print_r($user);
+        echo '</pre>';
+    }
+
+    public function addUser()
+    {
+        /*$id=DB::table('users')->insertGetId(
+            ['name'=>'blog','email'=>'lxw@qq.com','password'=>'blog']
+        );*/
+        $id=DB::table('users')->where('id',5)->update(['updated_at'=>time()]);
+        dd($id);
+    }
+
+    public function pageList()
+    {
+//        $user=DB::table('users')->simplePaginate(2);
+        $user=User::where('id','>',0)->Paginate(2);
+
+//        $user->withPath('pageList/lxw/lxw');
+        return view('user.profile',[
+            'page'=>$user,
+            'currentPage'=>$user->currentPage(),
+            'total'=>$user->total(),
+            'morePage'=>$user->hasMorePages(),
+            'lastItem'=>$user->lastItem(),
+            'url'=>$user->url($user->lastItem()),
+        ]);
+
+    }
+
+}
